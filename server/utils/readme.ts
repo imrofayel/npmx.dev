@@ -135,12 +135,14 @@ const ALLOWED_TAGS = [
   'sub',
   'kbd',
   'mark',
+  'button',
 ]
 
 const ALLOWED_ATTR: Record<string, string[]> = {
   a: ['href', 'title', 'target', 'rel'],
   img: ['src', 'alt', 'title', 'width', 'height'],
   source: ['src', 'srcset', 'type', 'media'],
+  button: ['class', 'title', 'type', 'aria-label', 'data-copy'],
   th: ['colspan', 'rowspan', 'align'],
   td: ['colspan', 'rowspan', 'align'],
   h3: ['id', 'data-level'],
@@ -305,7 +307,14 @@ export async function renderReadmeHtml(
 
   // Syntax highlighting for code blocks (uses shared highlighter)
   renderer.code = ({ text, lang }: Tokens.Code) => {
-    return highlightCodeSync(shiki, text, lang || 'text')
+    const html = highlightCodeSync(shiki, text, lang || 'text')
+    // Add copy button
+    return `<div class="readme-code-block" dir="ltr">
+<button type="button" class="readme-copy-button" title="Copy code" check-icon="i-carbon:checkmark" copy-icon="i-carbon:copy" data-copy>
+<span class="i-carbon:copy" aria-hidden="true"></span>
+</button>
+${html}
+</div>`
   }
 
   // Resolve image URLs (with GitHub blob → raw conversion)
